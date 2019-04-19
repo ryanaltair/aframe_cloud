@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Hello, World! - A-Frame</title>
+    <meta name="description" content="Hello, World! - A-Frame">
+
+</head>
+
+<body>
+    <script src="node_modules/aframe/dist/aframe-v0.9.1.js"></script>
+    <style>
+        a-scene {
+            height: 500px;
+            width: 100%;
+        }
+    </style>
+    <script>
+        AFRAME.registerComponent('cloud', {
+            init: function () {
+                let texture = new THREE.TextureLoader().load("cloud.png");
+                texture.magFilter = THREE.LinearMipMapLinearFilter;
+                texture.minFilter = THREE.LinearMipMapLinearFilter;
+                var fog = new THREE.Fog(0x4584b4, -100, 3000);
+                let vsScript =
+                    `
+                 varying vec2 vUv;
+                 void main() {
+                 vUv = uv;
+                 gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+                 }
+                 `
+                let fsScript =
+                    `
+                 uniform sampler2D map;
+                 uniform vec3 fogColor;
+                 uniform float fogNear;
+                 uniform float fogFar;
+                 varying vec2 vUv;
+
+                 void main() {
+                 float depth = gl_FragCoord.z / gl_FragCoord.w;
+                 float fogFactor = smoothstep( fogNear, fogFar, depth );
+                 gl_FragColor = texture2D( map, vUv );
+                 gl_FragColor.w *= pow( gl_FragCoord.z, 20.0 );
+                 gl_FragColor = mix( gl_FragColor, vec4( fogColor, gl_FragColor.w ), fogFactor );
+                 }
+                 `
+                this.material = new THREE.ShaderMaterial({
+
+                    uniforms: {
+
+                        "map": {
+                            type: "t",
+                            value: texture
+                        },
+                        "fogColor": {
+                            type: "c",
+                            value: fog.color
+                        },
+                        "fogNear": {
+                            type: "f",
+                            value: fog.near
+                        },
+                        "fogFar": {
+                            type: "f",
+                            value: fog.far
+                        },
+
+                    },
+                    vertexShader: vsScript,
+                    fragmentShader: fsScript,
+                    depthWrite: false,
+                    depthTest: false,
+                    transparent: true
+
+                });
+                this.geometry = new THREE.PlaneGeometry(0.64, 0.64);
+                var plane = new THREE.Mesh(new THREE.PlaneGeometry(0.64, 0.64));
+                let geometry = new THREE.Geometry();
+                for (let i = 0; i < 20; i += 0.001) {
+                    plane.position.x = Math.random() * 10 - 5;
+                    plane.position.y = -Math.random() * Math.random() * 2;
+                    plane.rotation.set(Math.random() * 360, Math.random() * 360, Math.random() * 360)
+                    plane.position.z = i;
+                    // plane.rotation.z = Math.random() * Math.PI;
+                    plane.scale.x = plane.scale.y = Math.random() * Math.random() * 1.5 + 0.5;
+                    geometry.mergeMesh(plane);
+                }
+                let bMaterial = new THREE.MeshBasicMaterial({
+                    color: 0x00000f
+                });
+
+                // this.mesh = new THREE.Mesh(this.geometry, bMaterial);
+                this.mesh = new THREE.Mesh(geometry, this.material);
+                // this.mesh = new THREE.Mesh(this.geometry, this.material);
+                this.el.setObject3D('mesh', this.mesh);
+            }
+        })
+    </script>
+
+    <a-scene inits embedded>
+
+        <!-- <a-box position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9"></a-box> -->
+        <!-- <a-sphere position="0 1.25 -5" radius="1.25" color="#EF2D5E"></a-sphere> -->
+        <!-- <a-cylinder position="1 0.75 -3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder> -->
+        <a-entity position="0 0 -5" cloud></a-entity>
+        <a-plane position="0 0 -4" rotation="-90 0 0" width="4" height="4" color="#7BC8A4"></a-plane>
+        <a-sky color="#ECECEC"></a-sky>
+    </a-scene>
+
+</body>
+
+</html>

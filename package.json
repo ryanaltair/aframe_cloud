@@ -1,0 +1,27 @@
+{
+  "name": "aframe_cloud",
+  "version": "1.0.0",
+  "description": "cloud for aframe",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "./node_modules/live-server/live-server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ryanaltair/aframe_cloud.git"
+  },
+  "keywords": [
+    "aframe"
+  ],
+  "author": "ryanaltair",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ryanaltair/aframe_cloud/issues"
+  },
+  "homepage": "https://github.com/ryanaltair/aframe_cloud#readme",
+  "dependencies": {
+    "aframe": "^0.9.1",
+    "live-server": "^1.2.1"
+  }
+}
